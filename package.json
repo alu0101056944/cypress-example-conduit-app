@@ -64,5 +64,6 @@
   },
   "nyc": {
     "exclude": "server/lib/migrations"
-  }
+  },
+  "dependencies": {}
 }

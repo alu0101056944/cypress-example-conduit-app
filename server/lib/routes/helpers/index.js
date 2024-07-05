@@ -4,7 +4,11 @@ const Toys = require('toys');
 
 exports.withDefaults = Toys.withRouteDefaults({
     options: {
-        cors: true,
+        cors: {
+          origin: ['*'],
+          additionalHeaders: ['*'],
+          additionalExposedHeaders: ['*']
+        },
         validate: {
             failAction: (request, h, err) => {
 

@@ -27,6 +27,7 @@
     "glue": "6.0.0",
     "hapi": "18.0.0",
     "hapi-auth-jwt2": "8.2.0",
+    "hapi-cors": "^1.0.3",
     "haute-couture": "3.5.0",
     "joi": "14.3.1",
     "jsonwebtoken": "8.5.1",

@@ -123,7 +123,7 @@ jobs:
     steps:
       - gcp-cli/setup:
           version: "latest"
-          google_project_id: $GOOGLE_PROJECT_ID
+          google_project_id: GOOGLE_PROJECT_ID
           components: "gke-gcloud-auth-plugin kubectl"
       - gcp-gke/update-kubeconfig-with-credentials:
           cluster: $GKE_CLUSTER_NAME

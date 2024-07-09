@@ -128,7 +128,6 @@ jobs:
           cluster: $GKE_CLUSTER_NAME
           use_gke_cloud_auth_plugin: true
       - gcp-gke/rollout-image:
-          cluster: $GKE_CLUSTER_NAME
           deployment: production-marcos-devops
           container: real-world-app
           image: docker.io/alu0101056944/realworldappmarcos:latest

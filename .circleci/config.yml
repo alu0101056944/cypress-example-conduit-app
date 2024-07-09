@@ -131,6 +131,7 @@ jobs:
       - run:
           name: Debug output
           command: |
+            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             echo "Project ID: $GOOGLE_PROJECT_ID"
             echo "Compute Region: $GOOGLE_COMPUTE_REGION"
             echo "Cluster Name: $GKE_CLUSTER_NAME"

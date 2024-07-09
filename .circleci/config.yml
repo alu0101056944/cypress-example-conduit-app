@@ -91,12 +91,10 @@ jobs:
     steps:
       - checkout
       - node/install:
-          install-yarn: true
           node-version: '12.22'
       # Download and cache dependencies
       - node/install-packages:
           check-cache: always
-          pkg-manager: yarn-berry
           with-cache: true
   build-and-push-docker:
     description: Build and push image to Docker Hub

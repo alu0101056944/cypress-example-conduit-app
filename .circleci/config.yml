@@ -4,7 +4,7 @@ version: 2.1
 orbs:
   cypress: cypress-io/cypress@1
   node: circleci/node@5.2.0
-  gke: circleci/gcp-gke@3.0
+  gcp-gke: circleci/gcp-gke@0.1.0
 
 executors:
   latest:

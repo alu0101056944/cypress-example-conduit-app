@@ -130,6 +130,13 @@ jobs:
       - run:
           name: Setup gcloud
           command: |
+            echo "Project ID: $GOOGLE_PROJECT_ID"
+            echo "Compute Region: $GOOGLE_COMPUTE_REGION"
+            echo "Cluster Name: $GKE_CLUSTER_NAME"
+            gcloud config list
+            gcloud auth list
+            gcloud container clusters list --region $GOOGLE_COMPUTE_REGION
+
             echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
 
@@ -171,13 +178,6 @@ jobs:
             gcloud components install gke-gcloud-auth-plugin
             # Get cluster credentials
             gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GOOGLE_COMPUTE_REGION --quiet
-
-            echo "Project ID: $GOOGLE_PROJECT_ID"
-            echo "Compute Region: $GOOGLE_COMPUTE_REGION"
-            echo "Cluster Name: $GKE_CLUSTER_NAME"
-            gcloud config list
-            gcloud auth list
-            gcloud container clusters list --region $GOOGLE_COMPUTE_REGION
       - run:
           name: Update Kubernetes deployment
           command: |

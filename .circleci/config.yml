@@ -98,11 +98,12 @@ jobs:
           with-cache: true
   build-and-push-docker:
     description: Build and push image to Docker Hub
-    machine: true
+    docker:
+      - image: cimg/base:stable
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.7
+          version: 20.10.14
       - run:
           description: The working directory is the root of the repository so just use "." as path
           name: Build Docker image

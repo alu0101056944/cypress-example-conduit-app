@@ -142,14 +142,14 @@ jobs:
             # Set project ID
             gcloud config set project $GOOGLE_PROJECT_ID
             
-            # Check if GOOGLE_COMPUTE_ZONE is set
-            if [ -z "$GOOGLE_COMPUTE_ZONE" ]; then
-              echo "GOOGLE_COMPUTE_ZONE is not set. Please set this environment variable in CircleCI."
+            # Check if GOOGLE_COMPUTE_REGION is set
+            if [ -z "$GOOGLE_COMPUTE_REGION" ]; then
+              echo "GOOGLE_COMPUTE_REGION is not set. Please set this environment variable in CircleCI."
               exit 1
             fi
             
-            # Set compute zone
-            gcloud config set compute/zone $GOOGLE_COMPUTE_ZONE
+            # Set compute region
+            gcloud config set compute/region $GOOGLE_COMPUTE_REGION
             
             # Check if GKE_CLUSTER_NAME is set
             if [ -z "$GKE_CLUSTER_NAME" ]; then
@@ -159,7 +159,7 @@ jobs:
             
             gcloud components install kubectl gke-gcloud-auth-plugin
             # Get cluster credentials
-            gcloud container clusters get-credentials $GKE_CLUSTER_NAME
+            gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GOOGLE_COMPUTE_REGION --quiet
       - run:
           name: Update Kubernetes deployment
           command: |

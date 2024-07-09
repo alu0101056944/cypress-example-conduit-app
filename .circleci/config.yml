@@ -147,7 +147,7 @@ jobs:
               echo "GOOGLE_COMPUTE_REGION is not set. Please set this environment variable in CircleCI."
               exit 1
             fi
-            
+
             # Set compute region
             gcloud config set compute/region $GOOGLE_COMPUTE_REGION
             
@@ -156,8 +156,13 @@ jobs:
               echo "GKE_CLUSTER_NAME is not set. Please set this environment variable in CircleCI."
               exit 1
             fi
+
+            # Install kubectl manually to avoid permission issues
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            sudo mv kubectl /usr/local/bin/
             
-            gcloud components install kubectl gke-gcloud-auth-plugin
+            gcloud components install gke-gcloud-auth-plugin
             # Get cluster credentials
             gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GOOGLE_COMPUTE_REGION --quiet
       - run:

@@ -115,13 +115,13 @@ jobs:
       - run:
           name: Push Docker image
           command: docker push alu0101056944/realworldappmarcos:latest
-      
+
   deploy:
     description: Deploy application to Google Kubernetes Engine
     executor: gcp-cli/default
     steps:
       - gcp-cli/setup:
-          components: "gke-gcloud-auth-plugin kubectl"
+          components: "gke-gcloud-auth-plugin kubectl --quiet"
           version: latest
       - gcp-gke/update-kubeconfig-with-credentials:
           cluster: $GKE_CLUSTER_NAME

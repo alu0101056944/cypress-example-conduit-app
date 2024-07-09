@@ -157,6 +157,7 @@ jobs:
               exit 1
             fi
             
+            gcloud components install kubectl gke-gcloud-auth-plugin
             # Get cluster credentials
             gcloud container clusters get-credentials $GKE_CLUSTER_NAME
       - run:

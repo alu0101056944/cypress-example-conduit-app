@@ -120,8 +120,6 @@ jobs:
     description: Deploy application to Google Kubernetes Engine
     machine: true
     steps:
-      - gcp-gke/install
-      - gcp-gke/init
       - gcp-gke/rollout-image:
           deployment: production-marcos-devops
           container: real-world-app

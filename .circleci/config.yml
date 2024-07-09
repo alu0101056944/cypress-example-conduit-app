@@ -123,7 +123,10 @@ jobs:
     steps:
       - run:
           name: Install gcloud CLI
-          command: curl -sSL https://sdk.cloud.google.com | bash
+          command: |
+            curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=${HOME}
+            echo 'export PATH=$PATH:${HOME}/google-cloud-sdk/bin' >> $BASH_ENV
+            source $BASH_ENV
       - run:
           name: Setup gcloud
           command: |

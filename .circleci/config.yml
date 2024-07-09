@@ -5,6 +5,7 @@ orbs:
   cypress: cypress-io/cypress@1
   node: circleci/node@5.2.0
   gcp-gke: circleci/gcp-gke@0.1.0
+  gcr: circleci/gcp-gcr@0.0.2
 
 executors:
   latest:
@@ -120,15 +121,68 @@ jobs:
     description: Deploy application to Google Kubernetes Engine
     machine: true
     steps:
-      # Install `gcloud` and `kubectl` if not already installed.
-      - gcp-gke/install
-      # Initialize the `gcloud` CLI.
-      - gcp-gke/init
-      # Update a deployment Docker image.
-      - gcp-gke/rollout-image:
-          deployment: production-marcos-devops
-          container: real-world-app
-          image: docker.io/alu0101056944/realworldappmarcos:latest
+      - run:
+          name: Install gcloud CLI
+          command: |
+            curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=${HOME}
+            echo 'export PATH=$PATH:${HOME}/google-cloud-sdk/bin' >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Setup gcloud
+          command: |
+            echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+
+            # Check if GOOGLE_PROJECT_ID is set and valid
+            if [ -z "$GOOGLE_PROJECT_ID" ] || ! gcloud projects describe $GOOGLE_PROJECT_ID &>/dev/null; then
+              echo "GOOGLE_PROJECT_ID is not set or invalid. Please check the project ID and ensure the service account has access to it."
+              exit 1
+            fi
+
+            # Check if GOOGLE_PROJECT_ID is set
+            if [ -z "$GOOGLE_PROJECT_ID" ]; then
+              echo "GOOGLE_PROJECT_ID is not set. Please set this environment variable in CircleCI."
+              exit 1
+            fi
+            
+            # Set project ID
+            gcloud config set project $GOOGLE_PROJECT_ID
+            
+            # Check if GOOGLE_COMPUTE_REGION is set
+            if [ -z "$GOOGLE_COMPUTE_REGION" ]; then
+              echo "GOOGLE_COMPUTE_REGION is not set. Please set this environment variable in CircleCI."
+              exit 1
+            fi
+
+            # Set compute region
+            gcloud config set compute/region $GOOGLE_COMPUTE_REGION
+            
+            # Check if GKE_CLUSTER_NAME is set
+            if [ -z "$GKE_CLUSTER_NAME" ]; then
+              echo "GKE_CLUSTER_NAME is not set. Please set this environment variable in CircleCI."
+              exit 1
+            fi
+
+            # Install kubectl manually to avoid permission issues
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            sudo mv kubectl /usr/local/bin/
+            
+            gcloud components install gke-gcloud-auth-plugin
+            # Get cluster credentials
+            gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GOOGLE_COMPUTE_REGION --quiet
+
+            echo "Project ID: $GOOGLE_PROJECT_ID"
+            echo "Compute Region: $GOOGLE_COMPUTE_REGION"
+            echo "Cluster Name: $GKE_CLUSTER_NAME"
+            gcloud config list
+            gcloud auth list
+            gcloud container clusters list --region $GOOGLE_COMPUTE_REGION
+      - run:
+          name: Update Kubernetes deployment
+          command: |
+            kubectl set image deployment/production-marcos-devops real-world-app=docker.io/alu0101056944/realworldappmarcos:latest
+            kubectl rollout status deployment/production-marcos-devops
 
 workflows:
   build:

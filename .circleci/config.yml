@@ -123,7 +123,6 @@ jobs:
     steps:
       - gcp-cli/setup:
           components: "gke-gcloud-auth-plugin kubectl"
-          use_oidc: true
       - gcp-gke/update-kubeconfig-with-credentials:
           cluster: $GKE_CLUSTER_NAME
           use_gke_cloud_auth_plugin: true

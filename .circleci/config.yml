@@ -129,7 +129,7 @@ jobs:
       - gcp-gke/rollout-image:
           deployment: production-marcos-devops
           container: real-world-app
-          image: alu0101056944/realworldappmarcos:latest
+          image: docker.io/alu0101056944/realworldappmarcos
 
 workflows:
   build:

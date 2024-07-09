@@ -4,8 +4,7 @@ version: 2.1
 orbs:
   cypress: cypress-io/cypress@1
   node: circleci/node@5.2.0
-  gcp-gke: circleci/gcp-gke@0.1.0
-  gcr: circleci/gcp-gcr@0.0.2
+  gcp-gke: circleci/gcp-gke@2.2.0
 
 executors:
   latest:
@@ -121,45 +120,13 @@ jobs:
     description: Deploy application to Google Kubernetes Engine
     machine: true
     steps:
-      - run:
-          name: Install gcloud CLI
-          command: |
-            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
-            curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=${HOME}/google-cloud-sdk
-            echo 'export PATH=$PATH:${HOME}/google-cloud-sdk/bin' >> $BASH_ENV
-            source $BASH_ENV
-      - run:
-          name: Debug output
-          command: |
-            echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-            echo "Project ID: $GOOGLE_PROJECT_ID"
-            echo "Compute Region: $GOOGLE_COMPUTE_REGION"
-            echo "Cluster Name: $GKE_CLUSTER_NAME"
-            gcloud config list
-            gcloud auth list
-            gcloud container clusters list --region $GOOGLE_COMPUTE_REGION --project $GOOGLE_PROJECT_ID
-      - run:
-          name: Setup gcloud
-          command: |
-            echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-            gcloud config set project $GOOGLE_PROJECT_ID
-            gcloud config set compute/region $GOOGLE_COMPUTE_REGION
-
-            # Install kubectl manually to avoid permission issues
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            chmod +x kubectl
-            sudo mv kubectl /usr/local/bin/
-            
-            gcloud components install gke-gcloud-auth-plugin
-
-            gcloud container clusters get-credentials $GKE_CLUSTER_NAME --location $GOOGLE_COMPUTE_REGION --project $GOOGLE_PROJECT_ID --quiet
-      - run:
+      - gcp-gke/install
+      - gcp-gke/init
+      - gcp-gke/rollout-image:
+          deployment: production-marcos-devops
+          container: real-world-app
+          image: docker.io/alu0101056944/realworldappmarcos:latest
           name: Update Kubernetes deployment
-          command: |
-            kubectl set image deployment/production-marcos-devops real-world-app=docker.io/alu0101056944/realworldappmarcos:latest
-            kubectl rollout status deployment/production-marcos-devops
 
 workflows:
   build:

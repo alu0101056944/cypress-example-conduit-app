@@ -124,51 +124,26 @@ jobs:
       - run:
           name: Install gcloud CLI
           command: |
-            curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=${HOME}
+            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+            curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=${HOME}/google-cloud-sdk
             echo 'export PATH=$PATH:${HOME}/google-cloud-sdk/bin' >> $BASH_ENV
             source $BASH_ENV
       - run:
+        name: Debug output
+        command: |
+          echo "Project ID: $GOOGLE_PROJECT_ID"
+          echo "Compute Region: $GOOGLE_COMPUTE_REGION"
+          echo "Cluster Name: $GKE_CLUSTER_NAME"
+          gcloud config list
+          gcloud auth list
+          gcloud container clusters list --region $GOOGLE_COMPUTE_REGION --project $GOOGLE_PROJECT_ID
+      - run:
           name: Setup gcloud
           command: |
-            echo "Project ID: $GOOGLE_PROJECT_ID"
-            echo "Compute Region: $GOOGLE_COMPUTE_REGION"
-            echo "Cluster Name: $GKE_CLUSTER_NAME"
-
             echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-            gcloud config list
-            gcloud auth list
-            gcloud container clusters list --region $GOOGLE_COMPUTE_REGION
-
-            # Check if GOOGLE_PROJECT_ID is set and valid
-            if [ -z "$GOOGLE_PROJECT_ID" ] || ! gcloud projects describe $GOOGLE_PROJECT_ID &>/dev/null; then
-              echo "GOOGLE_PROJECT_ID is not set or invalid. Please check the project ID and ensure the service account has access to it."
-              exit 1
-            fi
-
-            # Check if GOOGLE_PROJECT_ID is set
-            if [ -z "$GOOGLE_PROJECT_ID" ]; then
-              echo "GOOGLE_PROJECT_ID is not set. Please set this environment variable in CircleCI."
-              exit 1
-            fi
-            
-            # Set project ID
             gcloud config set project $GOOGLE_PROJECT_ID
-            
-            # Check if GOOGLE_COMPUTE_REGION is set
-            if [ -z "$GOOGLE_COMPUTE_REGION" ]; then
-              echo "GOOGLE_COMPUTE_REGION is not set. Please set this environment variable in CircleCI."
-              exit 1
-            fi
-
-            # Set compute region
             gcloud config set compute/region $GOOGLE_COMPUTE_REGION
-            
-            # Check if GKE_CLUSTER_NAME is set
-            if [ -z "$GKE_CLUSTER_NAME" ]; then
-              echo "GKE_CLUSTER_NAME is not set. Please set this environment variable in CircleCI."
-              exit 1
-            fi
 
             # Install kubectl manually to avoid permission issues
             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -176,8 +151,8 @@ jobs:
             sudo mv kubectl /usr/local/bin/
             
             gcloud components install gke-gcloud-auth-plugin
-            # Get cluster credentials
-            gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GOOGLE_COMPUTE_REGION --quiet
+
+            gcloud container clusters get-credentials $GKE_CLUSTER_NAME --location $GOOGLE_COMPUTE_REGION --project $GOOGLE_PROJECT_ID --quiet
       - run:
           name: Update Kubernetes deployment
           command: |

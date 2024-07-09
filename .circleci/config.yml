@@ -124,7 +124,6 @@ jobs:
           deployment: production-marcos-devops
           container: real-world-app
           image: docker.io/alu0101056944/realworldappmarcos:latest
-          name: Update Kubernetes deployment
 
 workflows:
   build:

@@ -129,14 +129,14 @@ jobs:
             echo 'export PATH=$PATH:${HOME}/google-cloud-sdk/bin' >> $BASH_ENV
             source $BASH_ENV
       - run:
-        name: Debug output
-        command: |
-          echo "Project ID: $GOOGLE_PROJECT_ID"
-          echo "Compute Region: $GOOGLE_COMPUTE_REGION"
-          echo "Cluster Name: $GKE_CLUSTER_NAME"
-          gcloud config list
-          gcloud auth list
-          gcloud container clusters list --region $GOOGLE_COMPUTE_REGION --project $GOOGLE_PROJECT_ID
+          name: Debug output
+          command: |
+            echo "Project ID: $GOOGLE_PROJECT_ID"
+            echo "Compute Region: $GOOGLE_COMPUTE_REGION"
+            echo "Cluster Name: $GKE_CLUSTER_NAME"
+            gcloud config list
+            gcloud auth list
+            gcloud container clusters list --region $GOOGLE_COMPUTE_REGION --project $GOOGLE_PROJECT_ID
       - run:
           name: Setup gcloud
           command: |

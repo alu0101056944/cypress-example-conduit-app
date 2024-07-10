@@ -105,9 +105,9 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - run:
-        name: Generate unique tag
-        command: |
-          echo 'export IMAGE_TAG=${CIRCLE_SHA1:0:7}' >> $BASH_ENV
+          name: Generate unique tag
+          command: |
+            echo 'export IMAGE_TAG=${CIRCLE_SHA1:0:7}' >> $BASH_ENV
       - run:
           description: The working directory is the root of the repository so just use "." as path
           name: Build Docker image

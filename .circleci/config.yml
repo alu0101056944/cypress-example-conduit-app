@@ -130,6 +130,10 @@ jobs:
           deployment: production-marcos-devops
           container: real-world-app
           image: docker.io/alu0101056944/realworldappmarcos
+      - run:
+          name: Restart deployment
+          command: |
+            kubectl rollout restart deployment/production-marcos-devops
 
 workflows:
   build:

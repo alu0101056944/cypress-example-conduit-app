@@ -105,16 +105,24 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - run:
+        name: Generate unique tag
+        command: |
+          echo 'export IMAGE_TAG=${CIRCLE_SHA1:0:7}' >> $BASH_ENV
+      - run:
           description: The working directory is the root of the repository so just use "." as path
           name: Build Docker image
-          command: docker build -t alu0101056944/realworldappmarcos:latest .
+          command: docker build -t alu0101056944/realworldappmarcos:$IMAGE_TAG .
       - run:
           name: Login to Docker Hub
           command: |
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
       - run:
           name: Push Docker image
-          command: docker push alu0101056944/realworldappmarcos:latest
+          command: |
+            docker push alu0101056944/realworldappmarcos:$IMAGE_TAG
+            # Also push as latest for consistency
+            docker tag alu0101056944/realworldappmarcos:$IMAGE_TAG alu0101056944/realworldappmarcos:latest
+            docker push alu0101056944/realworldappmarcos:latest
 
   deploy:
     description: Deploy application to Google Kubernetes Engine
@@ -130,6 +138,7 @@ jobs:
           deployment: production-marcos-devops
           container: real-world-app
           image: docker.io/alu0101056944/realworldappmarcos
+          tag: $IMAGE_TAG
       - run:
           name: Restart deployment
           command: |

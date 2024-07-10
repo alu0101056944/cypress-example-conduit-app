@@ -105,13 +105,9 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - run:
-          name: Generate unique tag
-          command: |
-            echo 'export IMAGE_TAG=${CIRCLE_SHA1:0:7}' >> $BASH_ENV
-      - run:
           description: The working directory is the root of the repository so just use "." as path
           name: Build Docker image
-          command: docker build -t alu0101056944/realworldappmarcos:$IMAGE_TAG .
+          command: docker build -t alu0101056944/realworldappmarcos:${CIRCLE_SHA1:0:7} .
       - run:
           name: Login to Docker Hub
           command: |
@@ -119,9 +115,9 @@ jobs:
       - run:
           name: Push Docker image
           command: |
-            docker push alu0101056944/realworldappmarcos:$IMAGE_TAG
+            docker push alu0101056944/realworldappmarcos:${CIRCLE_SHA1:0:7}
             # Also push as latest for consistency
-            docker tag alu0101056944/realworldappmarcos:$IMAGE_TAG alu0101056944/realworldappmarcos:latest
+            docker tag alu0101056944/realworldappmarcos:${CIRCLE_SHA1:0:7} alu0101056944/realworldappmarcos:latest
             docker push alu0101056944/realworldappmarcos:latest
 
   deploy:
@@ -138,7 +134,7 @@ jobs:
           deployment: production-marcos-devops
           container: real-world-app
           image: docker.io/alu0101056944/realworldappmarcos
-          tag: $IMAGE_TAG
+          tag: ${CIRCLE_SHA1:0:7}
       - run:
           name: Restart deployment
           command: |
